@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+@theme {
+  --font-outfit: "Outfit", sans-serif;
+
+  --color-vinho-900: #4a0404;
+  --color-vinho-800: #5a0505;
+  --color-vinho-700: #6b0a0a;
+  --color-bege-100: #f5f5dc;
+  --color-bege-200: #e8e8c1;
+}
+
+:root {
+  --primary-vinho: #4a0404;
+  --secondary-bege: #f5f5dc;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-outfit);
+  background-color: var(--color-vinho-900);
+  color: white;
+}
+
+@layer base {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: white;
+    font-weight: 800;
+  }
+}
+
+/* Custom premium classes */
+.wine-card {
+  background-color: var(--color-vinho-800);
+  border: 1px solid var(--color-vinho-700);
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+}
+
+.bege-button {
+  background-color: var(--color-bege-100);
+  color: var(--color-vinho-900);
+  font-weight: 800;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s;
+}
+
+.bege-button:hover {
+  background-color: var(--color-bege-200);
+  transform: translateY(-1px);
+}
+
+.vinho-input {
+  background-color: var(--color-vinho-900);
+  border: 1px solid var(--color-vinho-700);
+  color: white;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.vinho-input:focus {
+  border-color: var(--color-bege-100);
+  box-shadow: 0 0 0 2px rgba(245, 245, 220, 0.1);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #3a0303;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6b0a0a;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f5f5dc;
+}
