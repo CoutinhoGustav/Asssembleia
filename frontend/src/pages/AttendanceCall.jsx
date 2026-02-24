@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3002');
 
 const AttendanceCall = () => {
     const [students, setStudents] = useState([]);
@@ -41,7 +41,8 @@ const AttendanceCall = () => {
 
             setLoading(false);
         } catch (err) {
-            toast.error('Erro ao carregar dados');
+            console.error('Fetch error:', err);
+            toast.error(err.response?.data?.message || 'Erro ao carregar dados');
         }
     };
 
@@ -92,7 +93,7 @@ const AttendanceCall = () => {
                 <button
                     onClick={handleSave}
                     disabled={!isCallActive}
-                    className={`px-10 py-4 rounded-2xl font-black flex items-center gap-3 shadow-2xl transition-all active:scale-95 text-lg ${isCallActive
+                    className={`w-full md:w-auto px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 shadow-2xl transition-all active:scale-95 text-lg ${isCallActive
                         ? 'bg-[#f5f5dc] text-[#4a0404] hover:bg-[#e8e8c1] shadow-black/40 cursor-pointer'
                         : 'bg-black/20 text-[#f5f5dc]/20 cursor-not-allowed border-2 border-[#f5f5dc]/5'
                         }`}
@@ -116,14 +117,14 @@ const AttendanceCall = () => {
                 </motion.div>
             )}
 
-            <div className="bg-[#5a0505] rounded-[2.5rem] shadow-2xl border border-[#6b0a0a] overflow-hidden">
-                <div className="p-8 border-b border-[#6b0a0a]">
+            <div className="bg-[#5a0505] rounded-3xl md:rounded-[2.5rem] shadow-2xl border border-[#6b0a0a] overflow-hidden">
+                <div className="p-6 md:p-8 border-b border-[#6b0a0a]">
                     <div className="relative">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#f5f5dc]/40" size={24} />
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#f5f5dc]/40" size={20} md:size={24} />
                         <input
                             type="text"
-                            placeholder="Localizar membro ministerial..."
-                            className="w-full pl-14 pr-6 py-5 rounded-2xl bg-[#4a0404] border-2 border-[#6b0a0a] text-white focus:border-[#f5f5dc] focus:ring-4 focus:ring-[#f5f5dc]/5 transition-all outline-none font-bold text-lg placeholder-[#f5f5dc]/10"
+                            placeholder="Localizar membro..."
+                            className="w-full pl-12 md:pl-14 pr-6 py-4 md:py-5 rounded-2xl bg-[#4a0404] border-2 border-[#6b0a0a] text-white focus:border-[#f5f5dc] focus:ring-4 focus:ring-[#f5f5dc]/5 transition-all outline-none font-bold text-lg placeholder-[#f5f5dc]/10"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -132,31 +133,31 @@ const AttendanceCall = () => {
 
                 <div className="divide-y divide-[#6b0a0a] max-h-[600px] overflow-y-auto custom-scrollbar">
                     {filteredStudents.map((student) => (
-                        <div key={student._id} className="p-8 flex items-center justify-between hover:bg-black/10 transition-all group">
-                            <div className="flex items-center gap-5">
+                        <div key={student._id} className="p-5 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-black/10 transition-all group">
+                            <div className="flex items-center gap-4 md:gap-5">
                                 <motion.div
                                     whileTap={{ scale: 0.9 }}
-                                    className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl transition-all shadow-lg ${attendance[student._id] === 'present'
+                                    className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center font-black text-lg md:text-xl transition-all shadow-lg ${attendance[student._id] === 'present'
                                         ? 'bg-emerald-500 text-white shadow-emerald-900/40 rotate-3'
                                         : 'bg-[#4a0404] text-[#f5f5dc]/40 border border-[#6b0a0a]'
                                         }`}>
                                     {student.name.charAt(0)}
                                 </motion.div>
                                 <div>
-                                    <h3 className="font-black text-white text-xl tracking-tight">{student.name}</h3>
+                                    <h3 className="font-black text-white text-lg md:text-xl tracking-tight leading-tight">{student.name}</h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <div className={`w-2 h-2 rounded-full ${attendance[student._id] === 'present' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500/50'}`} />
-                                        <p className="text-xs font-black uppercase tracking-widest text-[#d1d1d1]">
+                                        <p className="text-[10px] md:text-xs font-black uppercase tracking-widest text-[#d1d1d1]">
                                             {attendance[student._id] === 'present' ? 'Presente' : 'Ausente'}
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto mt-2 sm:mt-0">
                                 <button
                                     onClick={() => markAttendance(student._id, 'absent')}
-                                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${attendance[student._id] === 'absent'
+                                    className={`flex-1 sm:w-12 h-12 rounded-xl flex items-center justify-center transition-all ${attendance[student._id] === 'absent'
                                         ? 'bg-rose-500 text-white shadow-lg shadow-rose-900/40'
                                         : 'bg-[#4a0404] text-[#f5f5dc]/20 hover:bg-[#6b0a0a] border border-[#6b0a0a]'
                                         }`}
@@ -165,7 +166,7 @@ const AttendanceCall = () => {
                                 </button>
                                 <button
                                     onClick={() => markAttendance(student._id, 'present')}
-                                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${attendance[student._id] === 'present'
+                                    className={`flex-1 sm:w-12 h-12 rounded-xl flex items-center justify-center transition-all ${attendance[student._id] === 'present'
                                         ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/40'
                                         : 'bg-[#4a0404] text-[#f5f5dc]/20 hover:bg-[#6b0a0a] border border-[#6b0a0a]'
                                         }`}
@@ -176,8 +177,8 @@ const AttendanceCall = () => {
                         </div>
                     ))}
                     {filteredStudents.length === 0 && (
-                        <div className="p-20 text-center text-[#d1d1d1] font-bold text-lg opacity-40">
-                            Nenhum membro encontrado na lista.
+                        <div className="p-12 md:p-20 text-center text-[#d1d1d1] font-bold text-lg opacity-40">
+                            Nenhum membro encontrado.
                         </div>
                     )}
                 </div>

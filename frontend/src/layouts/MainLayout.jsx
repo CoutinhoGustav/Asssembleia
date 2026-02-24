@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ModalRegistro from '../components/ModalRegistro';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const MainLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);

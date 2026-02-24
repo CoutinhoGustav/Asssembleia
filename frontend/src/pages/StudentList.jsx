@@ -72,7 +72,7 @@ const StudentList = () => {
 
                 <button
                     onClick={() => setModalOpen(true)}
-                    className="bg-[#f5f5dc] hover:bg-[#e8e8c1] text-[#4a0404] px-8 py-4 rounded-2xl font-black flex items-center gap-3 shadow-2xl transition-all active:scale-95 text-lg"
+                    className="w-full md:w-auto bg-[#f5f5dc] hover:bg-[#e8e8c1] text-[#4a0404] px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-3 shadow-2xl transition-all active:scale-95 text-lg"
                 >
                     <UserPlus size={24} strokeWidth={3} />
                     Novo Membro
@@ -98,14 +98,14 @@ const StudentList = () => {
                         <thead className="bg-black/20">
                             <tr>
                                 <th className="px-8 py-5 text-xs font-black text-[#f5f5dc]/60 uppercase tracking-[0.2em]">Membro</th>
-                                <th className="px-8 py-5 text-xs font-black text-[#f5f5dc]/60 uppercase tracking-[0.2em]">Status</th>
-                                <th className="px-8 py-5 text-xs font-black text-[#f5f5dc]/60 uppercase tracking-[0.2em]">Registrador</th>
+                                <th className="px-8 py-5 text-xs font-black text-[#f5f5dc]/60 uppercase tracking-[0.2em] hidden md:table-cell">Status</th>
+                                <th className="px-8 py-5 text-xs font-black text-[#f5f5dc]/60 uppercase tracking-[0.2em] hidden md:table-cell">Registrador</th>
                                 <th className="px-8 py-5 text-xs font-black text-[#f5f5dc]/60 uppercase tracking-[0.2em] text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#6b0a0a]">
                             {filteredStudents.map((student) => (
-                                <tr key={student._id} className="hover:bg-black/10 transition-colors">
+                                <tr key={student._id} className="hover:bg-black/10 transition-colors group">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-2xl bg-[#f5f5dc] flex items-center justify-center font-black text-[#4a0404] text-lg shadow-lg">
@@ -114,13 +114,13 @@ const StudentList = () => {
                                             <span className="font-bold text-white text-lg">{student.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5">
+                                    <td className="px-8 py-5 hidden md:table-cell">
                                         <span className="px-4 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-black uppercase tracking-widest">
                                             ATIVO
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5 text-[#d1d1d1] font-bold">{student.registeredBy || 'Sistema'}</td>
-                                    <td className="px-8 py-5 text-right">
+                                    <td className="px-8 py-5 text-[#d1d1d1] font-bold hidden md:table-cell">{student.registeredBy || 'Sistema'}</td>
+                                    <td className="px-8 py-5 text-right opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => openDeleteModal(student)}
                                             className="text-rose-400/50 hover:text-rose-500 hover:bg-rose-500/10 p-3 rounded-xl transition-all"
@@ -151,9 +151,9 @@ const StudentList = () => {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-[#3a0303] w-full max-w-lg rounded-[3rem] shadow-2xl p-10 border border-[#5a0505]"
+                            className="bg-[#3a0303] w-full max-w-lg rounded-3xl md:rounded-[3rem] shadow-2xl p-6 md:p-10 border border-[#5a0505]"
                         >
-                            <div className="flex items-center justify-between mb-10">
+                            <div className="flex items-center justify-between mb-6 md:mb-10">
                                 <div>
                                     <h2 className="text-3xl font-black text-[#f5f5dc] tracking-tighter">Novo Membro</h2>
                                     <p className="text-[#d1d1d1] text-xs font-bold uppercase tracking-widest mt-1">Cadastro Ministerial</p>
@@ -177,19 +177,19 @@ const StudentList = () => {
                                     />
                                 </div>
 
-                                <div className="flex gap-4 pt-4">
+                                <div className="flex flex-col md:flex-row-reverse gap-4 pt-4">
+                                    <button
+                                        type="submit"
+                                        className="w-full md:flex-1 px-8 py-4 rounded-2xl font-black bg-[#f5f5dc] text-[#4a0404] hover:bg-[#e8e8c1] shadow-xl shadow-black/40 transition-all active:scale-95"
+                                    >
+                                        SALVAR REGISTRO
+                                    </button>
                                     <button
                                         type="button"
                                         onClick={() => setModalOpen(false)}
-                                        className="flex-1 px-8 py-4 rounded-2xl font-black bg-transparent border-2 border-[#5a0505] text-[#d1d1d1] hover:bg-[#5a0505] transition-all"
+                                        className="w-full md:flex-1 px-8 py-4 rounded-2xl font-black bg-transparent border-2 border-[#5a0505] text-[#d1d1d1] hover:bg-[#5a0505] transition-all active:scale-95"
                                     >
                                         CANCELAR
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 px-8 py-4 rounded-2xl font-black bg-[#f5f5dc] text-[#4a0404] hover:bg-[#e8e8c1] shadow-xl shadow-black/40 transition-all"
-                                    >
-                                        SALVAR REGISTRO
                                     </button>
                                 </div>
                             </form>
@@ -205,7 +205,7 @@ const StudentList = () => {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-[#3a0303] w-full max-w-md rounded-[3rem] shadow-2xl p-10 border border-rose-500/20 text-center"
+                            className="bg-[#3a0303] w-full max-w-md rounded-3xl md:rounded-[3rem] shadow-2xl p-6 md:p-10 border border-rose-500/20 text-center"
                         >
                             <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-500">
                                 <AlertTriangle size={40} strokeWidth={2.5} />

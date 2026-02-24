@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import api from '../api';
 import { toast } from 'react-hot-toast';
 import { User, Mail, Lock, Camera, Trash2, Save, Key, X, Check } from 'lucide-react';
@@ -54,7 +54,7 @@ const Profile = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await api.put('/auth/profile', { name, email, avatar });
+            const res = await api.put('/auth/profile', { id: user.id, name, email, avatar });
             updateProfile(res.data);
             toast.success('Perfil atualizado!');
         } catch (err) {
@@ -72,13 +72,17 @@ const Profile = () => {
         }
         setLoading(true);
         try {
-            await api.put('/auth/password', { currentPassword, newPassword });
-            toast.success('Senha alterada com sucesso!');
-            setCurrentPassword('');
-            setNewPassword('');
-            setConfirmPassword('');
+            const res = await api.put('/auth/password', { email: user.email, currentPassword, newPassword });
+            if (res.data.message === 'Senha alterada com sucesso!') {
+                toast.success(res.data.message);
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+            } else {
+                toast.error(res.data.message || 'Erro ao alterar senha');
+            }
         } catch (err) {
-            toast.error(err.response?.data?.msg || 'Erro ao alterar senha');
+            toast.error(err.response?.data?.message || err.response?.data?.msg || 'Erro ao alterar senha');
         } finally {
             setLoading(false);
         }
@@ -88,7 +92,7 @@ const Profile = () => {
     const handleDeleteAccount = async () => {
         if (window.confirm('TEM CERTEZA? Esta ação é irreversível e excluirá todos os seus dados de administrador.')) {
             try {
-                await api.delete('/auth/account');
+                await api.delete(`/auth/account?email=${user.email}`);
                 toast.success('Conta excluída');
                 logout();
             } catch (err) {
@@ -140,29 +144,29 @@ const Profile = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-[#5a0505] p-10 rounded-[2.5rem] shadow-2xl border border-[#6b0a0a]"
+                        className="bg-[#5a0505] p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] shadow-2xl border border-[#6b0a0a]"
                     >
                         <form onSubmit={handleUpdateProfile} className="space-y-8">
-                            <div className="flex flex-col items-center gap-4 mb-10">
+                            <div className="flex flex-col items-center gap-4 mb-6 md:mb-10">
                                 <div className="relative group">
-                                    <div className="w-36 h-36 rounded-full overflow-hidden bg-[#3a0303] border-4 border-[#6b0a0a] shadow-2xl transition-transform group-hover:scale-105 duration-300">
+                                    <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden bg-[#3a0303] border-4 border-[#6b0a0a] shadow-2xl transition-transform group-hover:scale-105 duration-300">
                                         {avatar ? (
                                             <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-[#f5f5dc]/20 text-5xl font-black uppercase">
+                                            <div className="w-full h-full flex items-center justify-center text-[#f5f5dc]/20 text-4xl md:text-5xl font-black uppercase">
                                                 {user?.name?.charAt(0)}
                                             </div>
                                         )}
                                     </div>
-                                    <label className="absolute bottom-1 right-1 p-3 bg-[#f5f5dc] text-[#4a0404] rounded-2xl cursor-pointer shadow-xl hover:bg-white transition-all transform hover:rotate-12">
-                                        <Camera size={24} strokeWidth={3} />
+                                    <label className="absolute bottom-1 right-1 p-2 md:p-3 bg-[#f5f5dc] text-[#4a0404] rounded-2xl cursor-pointer shadow-xl hover:bg-white transition-all transform hover:rotate-12">
+                                        <Camera size={20} md:size={24} strokeWidth={3} />
                                         <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
                                     </label>
                                 </div>
-                                <p className="text-xs font-black uppercase tracking-[0.2em] text-[#f5f5dc]/40">Foto Ministerial</p>
+                                <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-[#f5f5dc]/40">Foto Ministerial</p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                                 <div>
                                     <label className="block text-sm font-black text-[#f5f5dc]/80 mb-3 ml-1 uppercase tracking-widest">Nome Completo</label>
                                     <div className="relative">
@@ -205,7 +209,7 @@ const Profile = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="bg-[#5a0505] p-10 rounded-[2.5rem] shadow-2xl border border-[#6b0a0a]"
+                        className="bg-[#5a0505] p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] shadow-2xl border border-[#6b0a0a]"
                     >
                         <div className="flex items-center gap-4 mb-8">
                             <div className="w-12 h-12 bg-[#4a0404] rounded-xl flex items-center justify-center text-[#f5f5dc] border border-[#6b0a0a]">
@@ -229,7 +233,7 @@ const Profile = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                                 <div>
                                     <label className="block text-sm font-black text-[#f5f5dc]/80 mb-3 ml-1 uppercase tracking-widest">Nova Senha</label>
                                     <input
@@ -255,7 +259,7 @@ const Profile = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full md:w-auto px-10 py-4 bg-transparent border-2 border-[#f5f5dc] text-[#f5f5dc] rounded-2xl font-black hover:bg-[#f5f5dc] hover:text-[#4a0404] transition-all shadow-lg active:scale-95"
+                                className="w-full md:w-auto px-10 py-4 bg-transparent border-2 border-[#f5f5dc] text-[#f5f5dc] rounded-2xl font-black hover:bg-[#f5f5dc] hover:text-[#4a0404] transition-all shadow-lg active:scale-95 flex items-center justify-center"
                             >
                                 ATUALIZAR SENHA
                             </button>
@@ -295,17 +299,17 @@ const Profile = () => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#3a0303] w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden border border-[#5a0505] flex flex-col"
+                            className="bg-[#3a0303] w-full max-w-2xl rounded-3xl md:rounded-[3rem] shadow-2xl overflow-hidden border border-[#5a0505] flex flex-col"
                         >
-                            <div className="p-8 border-b border-[#5a0505] flex justify-between items-center">
+                            <div className="p-6 md:p-8 border-b border-[#5a0505] flex justify-between items-center">
                                 <div>
-                                    <h2 className="text-2xl font-black text-[#f5f5dc] tracking-tighter">Ajustar Foto</h2>
-                                    <p className="text-[#d1d1d1] text-xs font-bold uppercase tracking-widest mt-1">Enquadramento Ministerial</p>
+                                    <h2 className="text-xl md:text-2xl font-black text-[#f5f5dc] tracking-tighter">Ajustar Foto</h2>
+                                    <p className="text-[#d1d1d1] text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Enquadramento Ministerial</p>
                                 </div>
-                                <X onClick={() => setImageToCrop(null)} className="text-[#f5f5dc]/40 cursor-pointer hover:text-white transition-colors" size={28} />
+                                <X onClick={() => setImageToCrop(null)} className="text-[#f5f5dc]/40 cursor-pointer hover:text-white transition-colors" size={24} md:size={28} />
                             </div>
 
-                            <div className="relative h-[400px] w-full bg-black">
+                            <div className="relative h-[300px] md:h-[400px] w-full bg-black">
                                 <Cropper
                                     image={imageToCrop}
                                     crop={crop}
@@ -319,9 +323,9 @@ const Profile = () => {
                                 />
                             </div>
 
-                            <div className="p-10 space-y-8">
+                            <div className="p-6 md:p-10 space-y-6 md:space-y-8">
                                 <div className="space-y-4">
-                                    <div className="flex justify-between text-xs font-black text-[#f5f5dc]/60 uppercase tracking-widest">
+                                    <div className="flex justify-between text-[10px] md:text-xs font-black text-[#f5f5dc]/60 uppercase tracking-widest">
                                         <span>Zoom do Ajuste</span>
                                         <span>{Math.round(zoom * 100)}%</span>
                                     </div>
@@ -337,19 +341,19 @@ const Profile = () => {
                                     />
                                 </div>
 
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => setImageToCrop(null)}
-                                        className="flex-1 py-4 rounded-2xl font-black bg-transparent border-2 border-[#5a0505] text-[#d1d1d1] hover:bg-[#5a0505] transition-all"
-                                    >
-                                        DESCARTAR
-                                    </button>
+                                <div className="flex flex-col md:flex-row gap-4">
                                     <button
                                         onClick={showCroppedImage}
-                                        className="flex-1 py-4 bg-[#f5f5dc] text-[#4a0404] rounded-2xl font-black shadow-xl flex items-center justify-center gap-3 hover:bg-white transition-all transform active:scale-95"
+                                        className="w-full md:flex-1 py-4 bg-[#f5f5dc] text-[#4a0404] rounded-2xl font-black shadow-xl flex items-center justify-center gap-3 hover:bg-white transition-all transform active:scale-95 order-1 md:order-2"
                                     >
                                         <Check size={22} strokeWidth={3} />
-                                        CONFIRMAR AJUSTE
+                                        CONFIRMAR
+                                    </button>
+                                    <button
+                                        onClick={() => setImageToCrop(null)}
+                                        className="w-full md:flex-1 py-4 rounded-2xl font-black bg-transparent border-2 border-[#5a0505] text-[#d1d1d1] hover:bg-[#5a0505] transition-all order-2 md:order-1"
+                                    >
+                                        DESCARTAR
                                     </button>
                                 </div>
                             </div>

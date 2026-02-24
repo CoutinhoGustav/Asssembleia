@@ -109,7 +109,7 @@ const History = () => {
                 </div>
                 <button
                     onClick={() => setIsPdfModalOpen(true)}
-                    className="bg-[#f5f5dc] hover:bg-[#e8e8c1] text-[#4a0404] px-8 py-4 rounded-2xl font-black flex items-center gap-3 shadow-2xl transition-all active:scale-95"
+                    className="w-full md:w-auto bg-[#f5f5dc] hover:bg-[#e8e8c1] text-[#4a0404] px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-3 shadow-2xl transition-all active:scale-95"
                 >
                     <Download size={22} strokeWidth={3} />
                     EXPORTAR PDF
@@ -144,8 +144,8 @@ const History = () => {
                         <thead className="bg-black/20 font-black text-[#f5f5dc]/60 uppercase tracking-widest text-xs">
                             <tr>
                                 <th className="px-8 py-5">Membro</th>
-                                <th className="px-8 py-5">Data</th>
-                                <th className="px-8 py-5 text-center">Status</th>
+                                <th className="px-8 py-5 hidden md:table-cell">Data</th>
+                                <th className="px-8 py-5 text-center hidden md:table-cell">Status</th>
                                 <th className="px-8 py-5 text-right">Ações</th>
                             </tr>
                         </thead>
@@ -160,15 +160,15 @@ const History = () => {
                                             <span className="font-bold text-white text-lg">{record.studentName}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 text-[#d1d1d1] font-medium">
+                                    <td className="px-8 py-5 text-[#d1d1d1] font-medium hidden md:table-cell">
                                         {format(new Date(record.date), "dd 'de' MMMM", { locale: ptBR })}
                                     </td>
-                                    <td className="px-8 py-5 text-center">
+                                    <td className="px-8 py-5 text-center hidden md:table-cell">
                                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-[0.2em] uppercase ${record.status === 'present' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/20 text-rose-400 border border-rose-500/20'}`}>
                                             {record.status === 'present' ? 'Presente' : 'Ausente'}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5 text-right flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <td className="px-8 py-5 text-right flex justify-end gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                         <button onClick={() => openEditModal(record)} className="p-3 text-[#f5f5dc]/40 hover:text-[#f5f5dc] hover:bg-[#4a0404] rounded-xl"><Edit2 size={18} /></button>
                                         <button onClick={() => handleDelete(record._id)} className="p-3 text-rose-400/40 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl"><Trash2 size={18} /></button>
                                     </td>
@@ -183,9 +183,9 @@ const History = () => {
             <AnimatePresence>
                 {(isEditModalOpen || isPdfModalOpen) && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#3a0303] w-full max-w-lg rounded-[3rem] shadow-2xl p-10 border border-[#5a0505]">
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-[#3a0303] w-full max-w-lg rounded-3xl md:rounded-[3rem] shadow-2xl p-6 md:p-10 border border-[#5a0505]">
                             {isEditModalOpen ? (
-                                <div className="space-y-8">
+                                <div className="space-y-6 md:space-y-8">
                                     <div className="flex justify-between items-center">
                                         <h2 className="text-3xl font-black text-[#f5f5dc] tracking-tighter">Ajustar Presença</h2>
                                         <X onClick={() => setIsEditModalOpen(false)} className="text-[#f5f5dc]/40 cursor-pointer" size={24} />
@@ -199,14 +199,14 @@ const History = () => {
                                             <p className="text-[#d1d1d1] font-medium">{editingRecord && format(new Date(editingRecord.date), "dd/MM/yyyy")}</p>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <button onClick={() => setTempStatus('present')} className={`py-6 rounded-2xl font-black border-2 transition-all ${tempStatus === 'present' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-[#6b0a0a] text-[#f5f5dc]/20'}`}>PRESENTE</button>
                                         <button onClick={() => setTempStatus('absent')} className={`py-6 rounded-2xl font-black border-2 transition-all ${tempStatus === 'absent' ? 'border-rose-500 bg-rose-500/10 text-rose-400' : 'border-[#6b0a0a] text-[#f5f5dc]/20'}`}>AUSENTE</button>
                                     </div>
                                     <button onClick={handleUpdate} className="w-full bg-[#f5f5dc] text-[#4a0404] py-5 rounded-2xl font-black text-lg shadow-xl shadow-black/40">SALVAR ALTERAÇÃO</button>
                                 </div>
                             ) : (
-                                <div className="space-y-8">
+                                <div className="space-y-6 md:space-y-8">
                                     <div className="flex justify-between items-center">
                                         <h2 className="text-3xl font-black text-[#f5f5dc] tracking-tighter">Relatório PDF</h2>
                                         <X onClick={() => setIsPdfModalOpen(false)} className="text-[#f5f5dc]/40 cursor-pointer" size={24} />

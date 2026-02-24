@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3002');
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -71,7 +71,7 @@ const Dashboard = () => {
             socket.emit('toggle_system', { isActive: res.data.isCallActive });
             toast.success(res.data.isCallActive ? 'Sistema Ligado - Chamada Ativa' : 'Sistema Desligado');
         } catch (err) {
-            toast.error('Erro ao alternar sistema');
+            toast.error(err.response?.data?.message || 'Erro ao alternar sistema');
         }
     };
 
@@ -100,7 +100,7 @@ const Dashboard = () => {
 
                 <button
                     onClick={toggleCall}
-                    className={`px-8 py-4 rounded-2xl font-black flex items-center gap-3 transition-all shadow-2xl active:scale-95 border-2 ${isCallActive
+                    className={`w-full md:w-auto px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition-all shadow-2xl active:scale-95 border-2 ${isCallActive
                         ? 'bg-[#f5f5dc] text-[#4a0404] border-[#f5f5dc] shadow-black/40'
                         : 'bg-transparent text-[#f5f5dc] border-[#f5f5dc]/30 hover:bg-[#5a0505]'
                         }`}

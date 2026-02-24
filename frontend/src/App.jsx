@@ -15,6 +15,7 @@ import History from './pages/History';
 import Profile from './pages/Profile';
 
 function App() {
+  console.log('App component is rendering...');
   return (
     <AuthProvider>
       <Router>

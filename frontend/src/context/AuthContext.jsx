@@ -1,49 +1,77 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import api from '../api';
+import React, { createContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const storedUser = localStorage.getItem('user');
-        if (token && storedUser) {
-            setUser(JSON.parse(storedUser));
+        try {
+            const token = localStorage.getItem('token');
+            const storedUser = localStorage.getItem('user');
+            if (token && storedUser && storedUser !== 'undefined') {
+                const parsed = JSON.parse(storedUser);
+                console.log('Auth state loaded:', parsed);
+                setUser(parsed);
+            } else {
+                console.log('No auth state found in storage');
+            }
+        } catch (error) {
+            console.error('Error loading auth state:', error);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
     const login = async (email, password) => {
-        const res = await fetch('http://localhost:5000/api/auth/login', {
+        const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+        const res = await fetch(`${baseURL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        if (!res.ok) throw { response: { data } };
 
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.admin));
-        setUser(data.admin);
-        return data;
+        if (!res.ok) {
+            throw { response: { data } };
+        }
+
+        if (data.token && (data.admin || data.user)) {
+            const userData = data.admin || data.user;
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+            return data;
+        } else {
+            throw { response: { data: { message: 'Dados de usuário ausentes' } } };
+        }
     };
 
     const register = async (name, email, password) => {
-        const res = await fetch('http://localhost:5000/api/auth/register', {
+        const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+        const res = await fetch(`${baseURL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password })
         });
         const data = await res.json();
-        if (!res.ok) throw { response: { data } };
 
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.admin));
-        setUser(data.admin);
-        return data;
+        if (!res.ok) {
+            throw { response: { data } };
+        }
+
+        if (data.token && (data.admin || data.user)) {
+            const userData = data.admin || data.user;
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+            return data;
+        } else {
+            throw { response: { data: { message: 'Erro ao registrar usuário' } } };
+        }
     };
 
     const updateProfile = (newData) => {
@@ -64,5 +92,3 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
-export const useAuth = () => useContext(AuthContext);

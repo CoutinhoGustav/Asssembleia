@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useData, normalizeDate } from '../context/DataContext';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import ModalTurma from '../components/ModalTurma';
 
 const Turma = () => {

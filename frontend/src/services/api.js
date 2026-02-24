@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Configuração da API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true' || true; // true por padrão para testes
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 // Criar instância do axios
 export const apiClient = axios.create({

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import { Mail, Lock, ArrowRight, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -35,7 +35,7 @@ const Login = () => {
             >
                 <div className="text-center mb-10">
                     <div className="w-16 h-16 bg-[#f5f5dc] rounded-2xl flex items-center justify-center text-[#4a0404] mx-auto mb-6 shadow-xl">
-                        <Users size={32} weight="bold" />
+                        <Users size={32} strokeWidth={3} />
                     </div>
                     <h2 className="text-4xl font-black text-[#f5f5dc] mb-2 tracking-tighter">Login Admin</h2>
                     <p className="text-[#d1d1d1] font-medium uppercase text-xs tracking-[0.2em]">Painel Assembleia</p>
