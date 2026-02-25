@@ -36,7 +36,8 @@ const StudentList = () => {
             setModalOpen(false);
             fetchStudents();
         } catch (err) {
-            toast.error('Erro ao matricular membro');
+            const message = err.response?.data?.message || 'Erro ao matricular membro';
+            toast.error(message);
         }
     };
 
@@ -106,26 +107,26 @@ const StudentList = () => {
                         <tbody className="divide-y divide-[#6b0a0a]">
                             {filteredStudents.map((student) => (
                                 <tr key={student._id} className="hover:bg-black/10 transition-colors group">
-                                    <td className="px-8 py-5">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-[#f5f5dc] flex items-center justify-center font-black text-[#4a0404] text-lg shadow-lg">
+                                    <td className="px-4 md:px-8 py-4 md:py-5">
+                                        <div className="flex items-center gap-3 md:gap-4 leading-tight">
+                                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-[#f5f5dc] flex items-center justify-center font-black text-[#4a0404] text-base md:text-lg shadow-lg flex-shrink-0">
                                                 {student.name.charAt(0)}
                                             </div>
-                                            <span className="font-bold text-white text-lg">{student.name}</span>
+                                            <span className="font-bold text-white text-sm md:text-lg truncate max-w-[150px] md:max-w-none">{student.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 hidden md:table-cell">
+                                    <td className="px-8 py-5 hidden lg:table-cell">
                                         <span className="px-4 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-black uppercase tracking-widest">
                                             ATIVO
                                         </span>
                                     </td>
                                     <td className="px-8 py-5 text-[#d1d1d1] font-bold hidden md:table-cell">{student.registeredBy || 'Sistema'}</td>
-                                    <td className="px-8 py-5 text-right opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                    <td className="px-4 md:px-8 py-4 md:py-5 text-right">
                                         <button
                                             onClick={() => openDeleteModal(student)}
-                                            className="text-rose-400/50 hover:text-rose-500 hover:bg-rose-500/10 p-3 rounded-xl transition-all"
+                                            className="text-rose-400/50 hover:text-rose-500 hover:bg-rose-500/10 p-2 md:p-3 rounded-xl transition-all"
                                         >
-                                            <Trash2 size={20} />
+                                            <Trash2 size={18} />
                                         </button>
                                     </td>
                                 </tr>

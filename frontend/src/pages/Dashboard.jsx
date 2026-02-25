@@ -4,6 +4,8 @@ import { Power, Users, ClipboardCheck, AlertCircle, TrendingUp } from 'lucide-re
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import io from 'socket.io-client';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3002');
 
@@ -41,8 +43,12 @@ const Dashboard = () => {
                 api.get('/assembly/history')
             ]);
 
-            const today = new Date().toISOString().split('T')[0];
-            const todayRecords = historyRes.data.filter(r => r.date.split('T')[0] === today);
+            const today = format(new Date(), 'yyyy-MM-dd');
+            const todayRecords = historyRes.data.filter(r => {
+                // Ajuste para considerar a data gravada no banco
+                const recordDate = format(new Date(r.date), 'yyyy-MM-dd');
+                return recordDate === today;
+            });
 
             setStats({
                 totalStudents: studentsRes.data.length,
@@ -137,18 +143,18 @@ const Dashboard = () => {
                 />
             </div>
 
-            <div className="bg-[#5a0505] p-10 rounded-3xl border border-[#6b0a0a] shadow-2xl relative overflow-hidden">
+            <div className="bg-[#5a0505] p-6 md:p-10 rounded-3xl border border-[#6b0a0a] shadow-2xl relative overflow-hidden">
                 <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                    <div className="max-w-xl">
+                    <div className="max-w-xl text-center lg:text-left">
                         <h2 className="text-3xl font-black text-[#f5f5dc] mb-4 tracking-tight">Controle da Chamada</h2>
-                        <p className="text-[#d1d1d1] text-lg leading-relaxed font-medium">
+                        <p className="text-[#d1d1d1] text-base md:text-lg leading-relaxed font-medium">
                             Ao ligar o sistema, você permite o registro automático de presença para hoje.
                             O status é propagado instantaneamente para todos os dispositivos conectados.
                         </p>
                     </div>
-                    <div className={`px-8 py-6 rounded-2xl border-2 flex items-center gap-6 transition-all duration-500 scale-105 ${isCallActive ? 'border-[#f5f5dc] bg-[#f5f5dc]/10 text-[#f5f5dc]' : 'border-[#6b0a0a] bg-black/20 text-[#d1d1d1]'}`}>
+                    <div className={`px-6 py-4 md:px-8 md:py-6 rounded-2xl border-2 flex items-center justify-center gap-6 transition-all duration-500 scale-100 md:scale-105 ${isCallActive ? 'border-[#f5f5dc] bg-[#f5f5dc]/10 text-[#f5f5dc]' : 'border-[#6b0a0a] bg-black/20 text-[#d1d1d1]'}`}>
                         <div className={`w-4 h-4 rounded-full ${isCallActive ? 'bg-[#f5f5dc] animate-ping' : 'bg-rose-500/50'}`} />
-                        <span className="text-xl font-black tracking-widest uppercase">{isCallActive ? 'CHAMADA ATIVA' : 'SISTEMA INATIVO'}</span>
+                        <span className="text-lg md:text-xl font-black tracking-widest uppercase">{isCallActive ? 'CHAMADA ATIVA' : 'SISTEMA INATIVO'}</span>
                     </div>
                 </div>
                 <div className="absolute top-0 right-0 w-96 h-96 bg-[#f5f5dc]/5 -mr-32 -mt-32 rounded-full blur-[100px]" />

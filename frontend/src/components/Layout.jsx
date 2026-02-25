@@ -45,7 +45,7 @@ const Layout = ({ children }) => {
                     <div className="w-10 h-10 bg-[#f5f5dc] rounded-xl flex items-center justify-center text-[#4a0404]">
                         <Users size={24} strokeWidth={3} />
                     </div>
-                    <span className="text-xl font-black tracking-tighter text-[#f5f5dc]">ASSEMBLEIA</span>
+                    <span className="text-xl font-black tracking-tighter text-[#f5f5dc]">IBRC</span>
                 </div>
 
                 <nav className="space-y-2">
@@ -94,7 +94,7 @@ const Layout = ({ children }) => {
 
             {/* Mobile Header */}
             <header className="md:hidden fixed top-0 w-full h-16 bg-[#3a0303] border-b border-[#5a0505] px-6 flex items-center justify-between z-50">
-                <span className="text-lg font-black tracking-tighter text-[#f5f5dc]">ASSEMBLEIA</span>
+                <span className="text-lg font-black tracking-tighter text-[#f5f5dc]">IBRC</span>
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     className="p-2 text-[#f5f5dc] hover:bg-[#4a0404] rounded-lg transition-all"

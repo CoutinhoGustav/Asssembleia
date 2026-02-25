@@ -90,7 +90,7 @@ const Profile = () => {
 
     // Delete Account
     const handleDeleteAccount = async () => {
-        if (window.confirm('TEM CERTEZA? Esta ação é irreversível e excluirá todos os seus dados de administrador.')) {
+        if (window.confirm('TEM CERTEZA? Esta ação é irreversível e excluirá todos os seus dados.')) {
             try {
                 await api.delete(`/auth/account?email=${user.email}`);
                 toast.success('Conta excluída');
@@ -135,7 +135,7 @@ const Profile = () => {
                 animate={{ opacity: 1, x: 0 }}
             >
                 <h1 className="text-4xl font-black text-[#f5f5dc] tracking-tighter">Meu Perfil</h1>
-                <p className="text-[#d1d1d1] font-medium tracking-wide">Gerenciamento ministerial e segurança</p>
+                <p className="text-[#d1d1d1] font-medium tracking-wide">Gerenciamento de perfil e segurança</p>
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -163,7 +163,7 @@ const Profile = () => {
                                         <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
                                     </label>
                                 </div>
-                                <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-[#f5f5dc]/40">Foto Ministerial</p>
+                                <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-[#f5f5dc]/40">Foto de Perfil</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -215,7 +215,7 @@ const Profile = () => {
                             <div className="w-12 h-12 bg-[#4a0404] rounded-xl flex items-center justify-center text-[#f5f5dc] border border-[#6b0a0a]">
                                 <Key size={24} strokeWidth={2.5} />
                             </div>
-                            <h2 className="text-2xl font-black text-[#f5f5dc] tracking-tight">Segurança Ministerial</h2>
+                            <h2 className="text-2xl font-black text-[#f5f5dc] tracking-tight">Senha</h2>
                         </div>
 
                         <form onSubmit={handleUpdatePassword} className="space-y-8">
@@ -279,7 +279,7 @@ const Profile = () => {
                             <h2 className="text-xl font-black tracking-tighter">Zona de Perigo</h2>
                         </div>
                         <p className="text-sm text-rose-400/70 font-medium mb-8 leading-relaxed">
-                            Ao excluir sua conta ministerial, todos os seus dados de acesso serão removidos permanentemente do sistema da assembleia.
+                            Ao excluir sua conta, todos os seus dados de acesso serão removidos do sistema da IBRC.
                         </p>
                         <button
                             onClick={handleDeleteAccount}
@@ -304,7 +304,7 @@ const Profile = () => {
                             <div className="p-6 md:p-8 border-b border-[#5a0505] flex justify-between items-center">
                                 <div>
                                     <h2 className="text-xl md:text-2xl font-black text-[#f5f5dc] tracking-tighter">Ajustar Foto</h2>
-                                    <p className="text-[#d1d1d1] text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Enquadramento Ministerial</p>
+                                    <p className="text-[#d1d1d1] text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Enquadramento</p>
                                 </div>
                                 <X onClick={() => setImageToCrop(null)} className="text-[#f5f5dc]/40 cursor-pointer hover:text-white transition-colors" size={24} md:size={28} />
                             </div>

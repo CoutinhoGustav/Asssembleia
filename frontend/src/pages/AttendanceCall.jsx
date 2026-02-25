@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
-import { Check, X, Send, Search, AlertTriangle } from 'lucide-react';
+import { Check, X, Send, Search, AlertTriangle, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import io from 'socket.io-client';
+import { useAuth } from '../hooks/useAuth';
+import { format } from 'date-fns';
 
 const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3002');
 
 const AttendanceCall = () => {
+    const { user } = useAuth();
     const [students, setStudents] = useState([]);
     const [attendance, setAttendance] = useState({}); // { studentId: 'present' | 'absent' }
     const [isCallActive, setIsCallActive] = useState(false);
@@ -25,6 +28,9 @@ const AttendanceCall = () => {
             socket.off('system_status_change');
         };
     }, []);
+
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
     const fetchData = async () => {
         try {
@@ -57,15 +63,27 @@ const AttendanceCall = () => {
     const handleSave = async () => {
         if (!isCallActive) return;
 
+        // Formata a data selecionada para o backend
+        // Garantindo que seja tratada como meio-dia para evitar problemas de timezone
+        const finalDate = new Date(selectedDate + 'T12:00:00');
+
         const records = students.map(s => ({
             studentName: s.name,
-            status: attendance[s._id] || 'absent'
+            status: attendance[s._id] || 'absent',
+            recordedBy: user?.name || 'Sistema',
+            date: finalDate
         }));
 
         try {
             await api.post('/assembly/attendance', { records });
-            toast.success('Chamada registrada!');
-            socket.emit('mark_attendance', { timestamp: new Date() });
+            toast.success('Chamada registrada com sucesso!');
+            socket.emit('mark_attendance', { timestamp: finalDate });
+            setIsConfirmModalOpen(false);
+
+            // Opcional: Limpar presenças após salvar
+            const initial = {};
+            students.forEach(s => initial[s._id] = 'absent');
+            setAttendance(initial);
         } catch (err) {
             toast.error('Erro ao salvar chamada');
         }
@@ -91,7 +109,7 @@ const AttendanceCall = () => {
                 </div>
 
                 <button
-                    onClick={handleSave}
+                    onClick={() => setIsConfirmModalOpen(true)}
                     disabled={!isCallActive}
                     className={`w-full md:w-auto px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 shadow-2xl transition-all active:scale-95 text-lg ${isCallActive
                         ? 'bg-[#f5f5dc] text-[#4a0404] hover:bg-[#e8e8c1] shadow-black/40 cursor-pointer'
@@ -120,7 +138,7 @@ const AttendanceCall = () => {
             <div className="bg-[#5a0505] rounded-3xl md:rounded-[2.5rem] shadow-2xl border border-[#6b0a0a] overflow-hidden">
                 <div className="p-6 md:p-8 border-b border-[#6b0a0a]">
                     <div className="relative">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#f5f5dc]/40" size={20} md:size={24} />
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#f5f5dc]/40" size={24} />
                         <input
                             type="text"
                             placeholder="Localizar membro..."
@@ -183,6 +201,51 @@ const AttendanceCall = () => {
                     )}
                 </div>
             </div>
+            <AnimatePresence>
+                {isConfirmModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-[#3a0303] w-full max-w-md rounded-[2.5rem] shadow-2xl border border-[#5a0505] p-8 md:p-10 text-center"
+                        >
+                            <div className="w-20 h-20 bg-[#f5f5dc] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-black/20">
+                                <Calendar className="text-[#4a0404]" size={40} />
+                            </div>
+
+                            <h2 className="text-3xl font-black text-[#f5f5dc] tracking-tighter mb-2">Finalizar Chamada</h2>
+                            <p className="text-[#f5f5dc]/60 font-bold text-sm uppercase tracking-widest mb-8">Selecione a data da assembleia</p>
+
+                            <div className="space-y-6">
+                                <div className="relative">
+                                    <input
+                                        type="date"
+                                        className="w-full px-6 py-5 rounded-2xl bg-[#4a0404] border-2 border-[#6b0a0a] text-white focus:border-[#f5f5dc] transition-all outline-none font-black text-xl text-center"
+                                        value={selectedDate}
+                                        onChange={(e) => setSelectedDate(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setIsConfirmModalOpen(false)}
+                                        className="flex-1 px-6 py-4 rounded-xl font-black text-[#f5f5dc]/40 hover:text-white transition-all uppercase tracking-widest text-xs"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        className="flex-1 bg-[#f5f5dc] text-[#4a0404] px-6 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all active:scale-95 shadow-xl"
+                                    >
+                                        CONFIRMAR
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

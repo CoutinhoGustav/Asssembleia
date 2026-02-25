@@ -1,9 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import clsx from 'clsx'; // Assuming I installed it, wait I did but wait. I'll use template literals if clsx is not available.
-// I tried installing clsx but the command had issues ?
-// I'll stick to template literals for now to be safe.
+import { useAuth } from '../hooks/useAuth';
 
 const Sidebar = ({ isOpen, onClose, onLogout, onOpenNewRegistry }) => {
+    const { user } = useAuth();
     const location = useLocation();
 
     const isActive = (path) => {
@@ -96,16 +95,17 @@ const Sidebar = ({ isOpen, onClose, onLogout, onOpenNewRegistry }) => {
                     {/* PERFIL */}
                     <div className="border-t border-white/10 pt-4">
                         <div className="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
-                            <div
-                                className="size-8 rounded-full bg-cover bg-center"
-                                style={{ backgroundImage: "url('https://ui-avatars.com/api/?name=Admin+IBRC')" }}
-                            ></div>
-
-                            <div>
-                                <p className="text-xs font-bold">Admin IBRC</p>
-                                <p className="text-[10px] text-white/50">admin@ibrc.com.br</p>
+                            <div className="w-8 h-8 rounded-full bg-[#f5f5dc] overflow-hidden flex items-center justify-center text-[#4a0404] font-bold text-xs shadow-lg flex-shrink-0">
+                                {user?.avatar ? (
+                                    <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    user?.name?.charAt(0) || 'U'
+                                )}
                             </div>
-
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold truncate text-white">{user?.name || 'Usuário'}</p>
+                                <p className="text-[10px] text-white/50 truncate uppercase tracking-widest font-black">Admin</p>
+                            </div>
                             <button
                                 onClick={onLogout}
                                 className="material-symbols-outlined ml-auto text-white/40 hover:text-red-400"

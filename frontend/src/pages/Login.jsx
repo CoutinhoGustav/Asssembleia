@@ -37,8 +37,8 @@ const Login = () => {
                     <div className="w-16 h-16 bg-[#f5f5dc] rounded-2xl flex items-center justify-center text-[#4a0404] mx-auto mb-6 shadow-xl">
                         <Users size={32} strokeWidth={3} />
                     </div>
-                    <h2 className="text-4xl font-black text-[#f5f5dc] mb-2 tracking-tighter">Login Admin</h2>
-                    <p className="text-[#d1d1d1] font-medium uppercase text-xs tracking-[0.2em]">Painel Assembleia</p>
+                    <h2 className="text-4xl font-black text-[#f5f5dc] mb-2 tracking-tighter">Login</h2>
+                    <p className="text-[#d1d1d1] font-medium uppercase text-xs tracking-[0.2em]">IBRC</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -76,8 +76,8 @@ const Login = () => {
                         type="submit"
                         className="w-full bg-[#f5f5dc] hover:bg-[#e8e8c1] text-[#4a0404] font-black py-4 rounded-2xl shadow-xl shadow-black/30 transition-all active:scale-[0.97] flex items-center justify-center gap-3 group text-lg"
                     >
-                        ACESSAR SISTEMA
-                        <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
+                        Entrar
+                        <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </form>
 
