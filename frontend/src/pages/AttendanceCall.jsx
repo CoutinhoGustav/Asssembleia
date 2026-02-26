@@ -16,6 +16,7 @@ const AttendanceCall = () => {
     const [isCallActive, setIsCallActive] = useState(false);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeTab, setActiveTab] = useState('official');
 
     useEffect(() => {
         fetchData();
@@ -69,6 +70,7 @@ const AttendanceCall = () => {
 
         const records = students.map(s => ({
             studentName: s.name,
+            type: s.type || 'official',
             status: attendance[s._id] || 'absent',
             recordedBy: user?.name || 'Sistema',
             date: finalDate
@@ -89,9 +91,11 @@ const AttendanceCall = () => {
         }
     };
 
-    const filteredStudents = students.filter(s =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredStudents = students.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const studentType = s.type || 'official';
+        return matchesSearch && studentType === activeTab;
+    });
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
@@ -136,8 +140,29 @@ const AttendanceCall = () => {
             )}
 
             <div className="bg-[#5a0505] rounded-3xl md:rounded-[2.5rem] shadow-2xl border border-[#6b0a0a] overflow-hidden">
-                <div className="p-6 md:p-8 border-b border-[#6b0a0a]">
-                    <div className="relative">
+                <div className="p-4 md:p-8 border-b border-[#6b0a0a] flex flex-col md:flex-row items-center gap-6">
+                    <div className="flex bg-[#4a0404] p-1.5 rounded-2xl border border-[#6b0a0a] w-full md:w-auto">
+                        <button
+                            onClick={() => setActiveTab('official')}
+                            className={`flex-1 md:flex-none px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'official'
+                                ? 'bg-[#f5f5dc] text-[#4a0404] shadow-lg'
+                                : 'text-[#f5f5dc]/40 hover:text-[#f5f5dc]/60'
+                                }`}
+                        >
+                            Oficiais
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('honorary')}
+                            className={`flex-1 md:flex-none px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'honorary'
+                                ? 'bg-[#f5f5dc] text-[#4a0404] shadow-lg'
+                                : 'text-[#f5f5dc]/40 hover:text-[#f5f5dc]/60'
+                                }`}
+                        >
+                            Honorários
+                        </button>
+                    </div>
+
+                    <div className="relative flex-1 w-full">
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#f5f5dc]/40" size={24} />
                         <input
                             type="text"

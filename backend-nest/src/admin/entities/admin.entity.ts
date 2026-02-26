@@ -14,7 +14,7 @@ export class Admin {
     @Column({ select: false })
     password: string;
 
-    @Column({ default: '' })
+    @Column({ type: 'text', nullable: true })
     avatar: string;
 
     @CreateDateColumn({ name: 'created_at' })

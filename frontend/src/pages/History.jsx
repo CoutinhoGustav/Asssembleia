@@ -18,6 +18,7 @@ const History = () => {
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedCall, setSelectedCall] = useState(null); // { date, recordedBy, records: [] }
     const [saving, setSaving] = useState(false);
+    const [modalTab, setModalTab] = useState('official');
 
     // Modal para confirmação de exclusão total
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -92,11 +93,15 @@ const History = () => {
     const openViewModal = (call) => {
         // Cria uma cópia profunda para não alterar o estado principal antes de salvar
         setSelectedCall(JSON.parse(JSON.stringify(call)));
+        setModalTab('official'); // Default to official when opening
         setIsViewModalOpen(true);
     };
 
-    const handleToggleStatusInModal = (recordIdx) => {
+    const handleToggleStatusInModal = (recordId) => {
         const updatedCall = { ...selectedCall };
+        const recordIdx = updatedCall.records.findIndex(r => r._id === recordId);
+        if (recordIdx === -1) return;
+
         const currentStatus = updatedCall.records[recordIdx].status;
         updatedCall.records[recordIdx].status = currentStatus === 'present' ? 'absent' : 'present';
         setSelectedCall(updatedCall);
@@ -134,83 +139,113 @@ const History = () => {
         const totalGroups = historyGroups.length;
         const sessionNum = 450 + (totalGroups - 1 - index);
 
-        // --- CABEÇALHO ---
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(0);
-        doc.text('IGREJA BATISTA REGULAR DO CALVÁRIO', 20, 20);
+        const types = [
+            { id: 'official', label: 'MEMBROS OFICIAIS' },
+            { id: 'honorary', label: 'MEMBROS HONORÁRIOS' }
+        ];
 
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.text('CNPJ 02.578.953/0001-67', 20, 25);
-        doc.text('CHAMADA DO ROL DE MEMBROS', 20, 30);
-        doc.text(`${sessionNum}ª SESSÃO ORDINÁRIA REALIZADA NO DIA ${dateFormatted}`, 20, 35);
+        types.forEach((type, typeIdx) => {
+            const typeRecords = group.records.filter(r => (r.type || 'official') === type.id);
 
-        // --- TABELA ---
-        const tableData = group.records.map((r, index) => [
-            index + 1,
-            r.studentName.toUpperCase(),
-            r.status === 'present' ? '.' : 'F',
-            '' // Coluna vazia para Assinatura
-        ]);
+            // Pula se não houver registros para esse tipo (exceto se for o primeiro tipo)
+            if (typeRecords.length === 0 && typeIdx > 0) return;
 
-        autoTable(doc, {
-            startY: 42,
-            head: [['', 'NOME DO MEMBRO', '. / F', 'ASSINATURA']],
-            body: tableData,
-            theme: 'grid',
-            headStyles: {
-                fillColor: [255, 255, 255],
-                textColor: [0, 0, 0],
-                fontStyle: 'bold',
-                lineWidth: 0.2,
-                lineColor: [0, 0, 0],
-                halign: 'center',
-                valign: 'middle'
-            },
-            styles: {
-                fontSize: 9,
-                cellPadding: 2,
-                lineColor: [0, 0, 0],
-                lineWidth: 0.2,
-                textColor: [0, 0, 0],
-                valign: 'middle'
-            },
-            columnStyles: {
-                0: { cellWidth: 10, halign: 'center' },
-                1: { cellWidth: 80, halign: 'left' },
-                2: { cellWidth: 20, halign: 'center' },
-                3: { cellWidth: 70, halign: 'center' }
+            // Adiciona nova página se não for o primeiro tipo
+            if (typeIdx > 0) doc.addPage();
+
+            // --- CABEÇALHO ---
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.setTextColor(0);
+            doc.text('IGREJA BATISTA REGULAR DO CALVÁRIO', 20, 20);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text('CNPJ 02.578.953/0001-67', 20, 25);
+            doc.text('CHAMADA DO ROL DE MEMBROS', 20, 30);
+            doc.text(`${sessionNum}ª SESSÃO ORDINÁRIA REALIZADA NO DIA ${dateFormatted}`, 20, 35);
+
+            // --- TABELA ---
+            const tableData = typeRecords.map((r, index) => [
+                index + 1,
+                r.studentName.toUpperCase(),
+                r.status === 'present' ? '.' : 'F',
+                '' // Coluna vazia para Assinatura
+            ]);
+
+            autoTable(doc, {
+                startY: 42,
+                head: [['', 'NOME DO MEMBRO', '. / F', 'ASSINATURA']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [255, 255, 255],
+                    textColor: [0, 0, 0],
+                    fontStyle: 'bold',
+                    lineWidth: 0.2,
+                    lineColor: [0, 0, 0],
+                    halign: 'center',
+                    valign: 'middle'
+                },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 2,
+                    lineColor: [0, 0, 0],
+                    lineWidth: 0.2,
+                    textColor: [0, 0, 0],
+                    valign: 'middle'
+                },
+                columnStyles: {
+                    0: { cellWidth: 10, halign: 'center' },
+                    1: { cellWidth: 80, halign: 'left' },
+                    2: { cellWidth: 20, halign: 'center' },
+                    3: { cellWidth: 70, halign: 'center' }
+                }
+            });
+
+            // --- RODAPÉ ---
+            if (type.id === 'official') {
+                let footerY = doc.lastAutoTable.finalY + 7;
+                const presentCount = typeRecords.filter(r => r.status === 'present').length;
+
+                // Se as assinaturas não couberem na página atual (considerando aprox 30mm de altura total), adiciona uma nova
+                if (footerY > 255) {
+                    doc.addPage();
+                    footerY = 25;
+                }
+
+                doc.setFontSize(9);
+                doc.setFont("helvetica", "normal");
+                doc.text('.: presença', 20, footerY);
+                doc.text('F: falta', 70, footerY);
+
+                doc.setFont("helvetica", "bold");
+                doc.text('Total de presentes:', 150, footerY);
+                doc.setLineWidth(0.2);
+                doc.line(182, footerY + 0.5, 195, footerY + 0.5); // Linha sublinhada
+                doc.text(`${presentCount}`, 188.5, footerY - 0.5, { align: 'center' });
+
+                // Assinaturas
+                const sigY = footerY + 30;
+
+                // Linha Pastor
+                doc.setLineWidth(0.2);
+                doc.line(40, sigY, 105, sigY);
+                doc.setFontSize(9);
+                doc.setFont("helvetica", "normal");
+                doc.text('Francisco Ernando Sales', 72.5, sigY + 5, { align: 'center' });
+                doc.setFont("helvetica", "italic");
+                doc.text('Pastor presidente', 72.5, sigY + 10, { align: 'center' });
+
+                // Linha Secretária
+                doc.line(125, sigY, 195, sigY);
+                doc.setFontSize(9);
+                doc.setFont("helvetica", "normal");
+                doc.text('Priscilla Erica Miranda Carvalho Schilder', 160, sigY + 5, { align: 'center' });
+                doc.setFont("helvetica", "italic");
+                doc.text('Primeira secretária', 160, sigY + 10, { align: 'center' });
             }
         });
-
-        // --- RODAPÉ ---
-        const finalY = doc.lastAutoTable.finalY + 10;
-        const presentCount = group.records.filter(r => r.status === 'present').length;
-
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "normal");
-        doc.text(`.: presença            F: falta`, 20, finalY);
-        doc.setFont("helvetica", "bold");
-        doc.text(`Total de presentes: ${presentCount}`, 145, finalY);
-
-        // Assinaturas
-        const sigY = finalY + 25;
-
-        // Linha Pastor
-        doc.setLineWidth(0.5);
-        doc.line(30, sigY, 90, sigY);
-        doc.setFontSize(8);
-        doc.text('Francisco Ernando Sales', 60, sigY + 4, { align: 'center' });
-        doc.setFont("helvetica", "normal");
-        doc.text('Pastor presidente', 60, sigY + 8, { align: 'center' });
-
-        // Linha Secretária
-        doc.line(110, sigY, 180, sigY);
-        doc.setFont("helvetica", "bold");
-        doc.text('Priscilla Erica Miranda Carvalho Schilder', 145, sigY + 4, { align: 'center' });
-        doc.setFont("helvetica", "normal");
-        doc.text('Primeira secretária', 145, sigY + 8, { align: 'center' });
 
         doc.save(`Lista_Presenca_${group.date}.pdf`);
         toast.success('Relatório gerado com sucesso!');
@@ -361,30 +396,58 @@ const History = () => {
                                         <p className="text-white font-bold">{selectedCall.recordedBy}</p>
                                     </div>
                                 </div>
+
+                                <div className="flex bg-[#4a0404] p-1.5 rounded-2xl border border-[#5a0505]">
+                                    <button
+                                        onClick={() => setModalTab('official')}
+                                        className={`flex-1 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${modalTab === 'official'
+                                            ? 'bg-[#f5f5dc] text-[#4a0404] shadow-lg'
+                                            : 'text-[#f5f5dc]/40 hover:text-[#f5f5dc]/60'
+                                            }`}
+                                    >
+                                        Oficiais
+                                    </button>
+                                    <button
+                                        onClick={() => setModalTab('honorary')}
+                                        className={`flex-1 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${modalTab === 'honorary'
+                                            ? 'bg-[#f5f5dc] text-[#4a0404] shadow-lg'
+                                            : 'text-[#f5f5dc]/40 hover:text-[#f5f5dc]/60'
+                                            }`}
+                                    >
+                                        Honorários
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
                                 <div className="space-y-3">
-                                    {selectedCall.records.map((record, index) => (
-                                        <div key={record._id} className="flex items-center justify-between p-4 bg-[#4a0404] rounded-2xl border border-white/5 hover:border-white/10 transition-all group">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${record.status === 'present' ? 'bg-emerald-500 text-white' : 'bg-rose-500/20 text-rose-400'
-                                                    }`}>
-                                                    {record.studentName.charAt(0)}
+                                    {selectedCall.records
+                                        .filter(r => (r.type || 'official') === modalTab)
+                                        .map((record) => (
+                                            <div key={record._id} className="flex items-center justify-between p-4 bg-[#4a0404] rounded-2xl border border-white/5 hover:border-white/10 transition-all group">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${record.status === 'present' ? 'bg-emerald-500 text-white' : 'bg-rose-500/20 text-rose-400'
+                                                        }`}>
+                                                        {record.studentName.charAt(0)}
+                                                    </div>
+                                                    <span className="font-bold text-white text-lg">{record.studentName}</span>
                                                 </div>
-                                                <span className="font-bold text-white text-lg">{record.studentName}</span>
+                                                <button
+                                                    onClick={() => handleToggleStatusInModal(record._id)}
+                                                    className={`px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${record.status === 'present'
+                                                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/40'
+                                                        : 'bg-rose-600 text-white shadow-lg shadow-rose-900/40'
+                                                        }`}
+                                                >
+                                                    {record.status === 'present' ? 'Presente' : 'Ausente'}
+                                                </button>
                                             </div>
-                                            <button
-                                                onClick={() => handleToggleStatusInModal(index)}
-                                                className={`px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${record.status === 'present'
-                                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/40'
-                                                    : 'bg-rose-600 text-white shadow-lg shadow-rose-900/40'
-                                                    }`}
-                                            >
-                                                {record.status === 'present' ? 'Presente' : 'Ausente'}
-                                            </button>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    {selectedCall.records.filter(r => (r.type || 'official') === modalTab).length === 0 && (
+                                        <p className="text-center text-[#f5f5dc]/20 font-black uppercase tracking-widest py-10">
+                                            Nenhum registro nesta categoria.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 

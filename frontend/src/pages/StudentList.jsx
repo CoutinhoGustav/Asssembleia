@@ -12,6 +12,8 @@ const StudentList = () => {
     const [studentToDelete, setStudentToDelete] = useState(null);
     const [newName, setNewName] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeTab, setActiveTab] = useState('official');
+    const [newType, setNewType] = useState('official');
 
     useEffect(() => {
         fetchStudents();
@@ -30,9 +32,13 @@ const StudentList = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/assembly/students', { name: newName });
+            await api.post('/assembly/students', {
+                name: newName,
+                type: newType
+            });
             toast.success('Membro matriculado!');
             setNewName('');
+            setNewType('official');
             setModalOpen(false);
             fetchStudents();
         } catch (err) {
@@ -59,9 +65,11 @@ const StudentList = () => {
         setDeleteModalOpen(true);
     };
 
-    const filteredStudents = students.filter(s =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredStudents = students.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const studentType = s.type || 'official';
+        return matchesSearch && studentType === activeTab;
+    });
 
     return (
         <div className="space-y-8">
@@ -81,8 +89,29 @@ const StudentList = () => {
             </div>
 
             <div className="bg-[#5a0505] rounded-[2.5rem] shadow-2xl border border-[#6b0a0a] overflow-hidden">
-                <div className="p-8 border-b border-[#6b0a0a] flex items-center gap-6">
-                    <div className="relative flex-1">
+                <div className="p-4 md:p-8 border-b border-[#6b0a0a] flex flex-col md:flex-row items-center gap-6">
+                    <div className="flex bg-[#4a0404] p-1.5 rounded-2xl border border-[#6b0a0a] w-full md:w-auto">
+                        <button
+                            onClick={() => setActiveTab('official')}
+                            className={`flex-1 md:flex-none px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'official'
+                                ? 'bg-[#f5f5dc] text-[#4a0404] shadow-lg'
+                                : 'text-[#f5f5dc]/40 hover:text-[#f5f5dc]/60'
+                                }`}
+                        >
+                            Oficiais
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('honorary')}
+                            className={`flex-1 md:flex-none px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'honorary'
+                                ? 'bg-[#f5f5dc] text-[#4a0404] shadow-lg'
+                                : 'text-[#f5f5dc]/40 hover:text-[#f5f5dc]/60'
+                                }`}
+                        >
+                            Honorários
+                        </button>
+                    </div>
+
+                    <div className="relative flex-1 w-full">
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#f5f5dc]/40" size={24} />
                         <input
                             type="text"
@@ -134,7 +163,7 @@ const StudentList = () => {
                             {filteredStudents.length === 0 && !loading && (
                                 <tr>
                                     <td colSpan="4" className="px-8 py-20 text-center text-[#d1d1d1] font-bold text-lg">
-                                        Nenhum membro encontrado na base de dados.
+                                        Nenhum membro {activeTab === 'official' ? 'oficial' : 'honorário'} encontrado.
                                     </td>
                                 </tr>
                             )}
@@ -164,7 +193,33 @@ const StudentList = () => {
                                 </button>
                             </div>
 
-                            <form onSubmit={handleRegister} className="space-y-8">
+                            <form onSubmit={handleRegister} className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-black text-[#f5f5dc]/80 mb-3 ml-1 uppercase tracking-widest">Tipo de Membro</label>
+                                    <div className="flex gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setNewType('official')}
+                                            className={`flex-1 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all border-2 ${newType === 'official'
+                                                ? 'bg-[#f5f5dc] text-[#4a0404] border-[#f5f5dc]'
+                                                : 'bg-transparent text-[#f5f5dc]/40 border-[#6b0a0a] hover:border-[#f5f5dc]/20'
+                                                }`}
+                                        >
+                                            Oficial
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setNewType('honorary')}
+                                            className={`flex-1 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all border-2 ${newType === 'honorary'
+                                                ? 'bg-[#f5f5dc] text-[#4a0404] border-[#f5f5dc]'
+                                                : 'bg-transparent text-[#f5f5dc]/40 border-[#6b0a0a] hover:border-[#f5f5dc]/20'
+                                                }`}
+                                        >
+                                            Honorário
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label className="block text-sm font-black text-[#f5f5dc]/80 mb-3 ml-1 uppercase tracking-widest">Nome Completo</label>
                                     <input

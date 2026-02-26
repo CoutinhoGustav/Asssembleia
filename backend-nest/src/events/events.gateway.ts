@@ -28,6 +28,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     handleMarkAttendance(client: Socket, payload: any) {
         // Broadcast to all other clients
         this.server.emit('attendance_marked', payload);
+        this.server.emit('attendance_update', payload); // For Dashboard
     }
 
     // Helper method to be called from services

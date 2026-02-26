@@ -31,11 +31,19 @@ export class AdminService {
         });
     }
 
+    findById(id: string) {
+        return this.repository.findOne({
+            where: { id },
+            select: ['id', 'name', 'email', 'avatar']
+        });
+    }
+
     async update(id: string, updateDto: any) {
-        if (updateDto.password) {
-            updateDto.password = await bcrypt.hash(updateDto.password, 10);
+        const { id: _, ...data } = updateDto;
+        if (data.password) {
+            data.password = await bcrypt.hash(data.password, 10);
         }
-        await this.repository.update(id, updateDto);
+        await this.repository.update(id, data);
         return this.repository.findOne({ where: { id } });
     }
 

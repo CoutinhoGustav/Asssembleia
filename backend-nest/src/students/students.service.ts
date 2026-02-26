@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Student } from './entities/student.entity';
 
 @Injectable()
@@ -10,13 +10,28 @@ export class StudentsService {
         private readonly repository: Repository<Student>,
     ) { }
 
-    create(createDto: any) {
-        const student = this.repository.create(createDto);
+    async create(createDto: any) {
+        const name = createDto.name?.trim();
+        if (!name) {
+            throw new BadRequestException('O nome é obrigatório');
+        }
+
+        const existing = await this.repository.findOne({
+            where: { name: ILike(name) }
+        });
+
+        if (existing) {
+            throw new ConflictException('Já existe um membro registrado com este nome.');
+        }
+
+        const student = this.repository.create({ ...createDto, name });
         return this.repository.save(student);
     }
 
     findAll() {
-        return this.repository.find();
+        return this.repository.find({
+            order: { name: 'ASC' }
+        });
     }
 
     findOne(id: string) {

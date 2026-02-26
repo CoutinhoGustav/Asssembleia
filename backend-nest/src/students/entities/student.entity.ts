@@ -11,6 +11,9 @@ export class Student {
     @Column({ default: 'active' })
     status: string; // active, inactive
 
+    @Column({ default: 'official' })
+    type: string; // official, honorary
+
     @Column({ name: 'registered_by', nullable: true })
     registeredBy: string;
 

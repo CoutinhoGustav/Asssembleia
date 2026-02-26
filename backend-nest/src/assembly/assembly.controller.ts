@@ -14,13 +14,13 @@ export class AssemblyController {
     @Get('students')
     async findAllStudents() {
         const students = await this.studentsService.findAll();
-        return students.map((s: any) => ({ ...s, _id: s.id }));
+        return (students || []).map(s => this.mapId(s));
     }
 
     @Post('students')
     async createStudent(@Body() dto: any) {
         const student: any = await this.studentsService.create(dto);
-        return { ...student, _id: student.id };
+        return this.mapId(student);
     }
 
     @Delete('students/:id')
@@ -43,27 +43,39 @@ export class AssemblyController {
     @Post('attendance')
     async createAttendance(@Body('records') records: any[]) {
         const results = [];
-        for (const record of records) {
+        const recordsArray = Array.isArray(records) ? records : [];
+        for (const record of recordsArray) {
             const saved: any = await this.attendancesService.create(record);
-            results.push({ ...saved, _id: saved.id });
+            results.push(this.mapId(saved));
         }
         return { savedRecords: results };
     }
 
     @Get('history')
     async getHistory(@Query('date') date?: string) {
-        const attendances = await this.attendancesService.findAll();
-        return attendances.map((a: any) => ({ ...a, _id: a.id }));
+        const attendances = await this.attendancesService.findAll(date);
+        return (attendances || []).map(a => this.mapId(a));
     }
 
     @Put('attendance/:id')
     async updateAttendance(@Param('id') id: string, @Body() dto: any) {
         const updated: any = await this.attendancesService.update(id, dto);
-        return { ...updated, _id: updated.id };
+        if (!updated) return { message: 'Registro não encontrado' };
+        return this.mapId(updated);
     }
 
     @Delete('attendance/:id')
     async removeAttendance(@Param('id') id: string) {
         return this.attendancesService.remove(id);
+    }
+
+    @Delete('history')
+    async removeHistoryByDate(@Query('date') date: string) {
+        return this.attendancesService.removeByDate(date);
+    }
+
+    private mapId(item: any) {
+        if (!item) return item;
+        return { ...item, _id: item.id };
     }
 }
