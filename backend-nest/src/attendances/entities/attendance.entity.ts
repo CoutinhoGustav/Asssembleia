@@ -11,6 +11,9 @@ export class Attendance {
     @Column()
     status: string; // present, absent
 
+    @Column({ nullable: true })
+    type: string; // official, honorary
+
     @CreateDateColumn()
     date: Date;
 

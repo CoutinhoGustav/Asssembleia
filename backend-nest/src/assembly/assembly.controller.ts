@@ -56,6 +56,14 @@ export class AssemblyController {
         return attendances.map((a: any) => ({ ...a, _id: a.id }));
     }
 
+    @Delete('history')
+    async removeHistoryByDate(@Query('date') date: string) {
+        if (!date) {
+            throw new Error('Date is required to delete history');
+        }
+        return this.attendancesService.removeByDate(date);
+    }
+
     @Put('attendance/:id')
     async updateAttendance(@Param('id') id: string, @Body() dto: any) {
         const updated: any = await this.attendancesService.update(id, dto);
