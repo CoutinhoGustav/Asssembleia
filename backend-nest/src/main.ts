@@ -7,7 +7,7 @@ async function bootstrap() {
     app.enableCors({
         origin: '*',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        allowedHeaders: 'Content-Type, Accept, Authorization, x-auth-token',
+        allowedHeaders: 'Content-Type, Accept, Authorization, x-auth-token, Bypass-Tunnel-Reminder, bypass-tunnel-reminder',
     });
 
     app.use((req, res, next) => {
