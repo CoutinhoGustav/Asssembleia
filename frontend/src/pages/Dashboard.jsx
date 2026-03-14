@@ -7,7 +7,11 @@ import io from 'socket.io-client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3002');
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3002', {
+    extraHeaders: {
+        'bypass-tunnel-reminder': 'true'
+    }
+});
 
 const Dashboard = () => {
     const [stats, setStats] = useState({

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { config } from '../config';
 
 export const AuthContext = createContext();
 
@@ -8,8 +9,8 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         try {
-            const token = localStorage.getItem('token');
-            const storedUser = localStorage.getItem('user');
+            const token = localStorage.getItem(config.tokenKey);
+            const storedUser = localStorage.getItem(config.userKey);
             if (token && storedUser && storedUser !== 'undefined') {
                 const parsed = JSON.parse(storedUser);
                 console.log('Auth state loaded:', parsed);
@@ -19,18 +20,20 @@ export const AuthProvider = ({ children }) => {
             }
         } catch (error) {
             console.error('Error loading auth state:', error);
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            localStorage.removeItem(config.tokenKey);
+            localStorage.removeItem(config.userKey);
         } finally {
             setLoading(false);
         }
     }, []);
 
     const login = async (email, password) => {
-        const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
-        const res = await fetch(`${baseURL}/auth/login`, {
+        const res = await fetch(`${config.apiUrl}/auth/login`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'bypass-tunnel-reminder': 'true'
+            },
             body: JSON.stringify({ email, password })
         });
         const data = await res.json();
@@ -51,10 +54,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (name, email, password) => {
-        const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
-        const res = await fetch(`${baseURL}/auth/register`, {
+        const res = await fetch(`${config.apiUrl}/auth/register`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'bypass-tunnel-reminder': 'true'
+            },
             body: JSON.stringify({ name, email, password })
         });
         const data = await res.json();
@@ -76,13 +81,13 @@ export const AuthProvider = ({ children }) => {
 
     const updateProfile = (newData) => {
         const updatedUser = { ...user, ...newData };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        localStorage.setItem(config.userKey, JSON.stringify(updatedUser));
         setUser(updatedUser);
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem(config.tokenKey);
+        localStorage.removeItem(config.userKey);
         setUser(null);
     };
 

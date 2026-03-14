@@ -1,7 +1,11 @@
 import axios from 'axios';
+import { config } from '../config';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3002',
+    baseURL: config.apiUrl,
+    headers: {
+        'bypass-tunnel-reminder': 'true'
+    }
 });
 console.log('API Base URL:', api.defaults.baseURL);
 

@@ -3,13 +3,13 @@
 
 export const config = {
   // API
-  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3002',
   
   // Mock
   useMock: import.meta.env.VITE_USE_MOCK !== 'false', // true por padrão
   
   // Autenticação
-  tokenKey: 'authToken',
+  tokenKey: 'token',
   userKey: 'user',
 };
 
