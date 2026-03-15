@@ -8,22 +8,28 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    console.log('[Auth] Initializing AuthProvider component...');
+
     useEffect(() => {
+        console.log('[Auth] Running initialization effect...');
         try {
-            const token = localStorage.getItem(config.tokenKey);
-            const storedUser = localStorage.getItem(config.userKey);
+            const token = localStorage.getItem('token');
+            const storedUser = localStorage.getItem('user');
+            console.log('[Auth] Found token:', !!token, 'Found user:', !!storedUser);
+            
             if (token && storedUser && storedUser !== 'undefined') {
                 const parsed = JSON.parse(storedUser);
-                console.log('Auth state loaded:', parsed);
+                console.log('[Auth] Auth state loaded:', parsed);
                 setUser(parsed);
             } else {
-                console.log('No auth state found in storage');
+                console.log('[Auth] No auth state found in storage');
             }
         } catch (error) {
-            console.error('Error loading auth state:', error);
-            localStorage.removeItem(config.tokenKey);
-            localStorage.removeItem(config.userKey);
+            console.error('[Auth] Error loading auth state:', error);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
         } finally {
+            console.log('[Auth] Initialization finished, setting loading to false');
             setLoading(false);
         }
     }, []);
@@ -70,13 +76,13 @@ export const AuthProvider = ({ children }) => {
 
     const updateProfile = (newData) => {
         const updatedUser = { ...user, ...newData };
-        localStorage.setItem(config.userKey, JSON.stringify(updatedUser));
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         setUser(updatedUser);
     };
 
     const logout = () => {
-        localStorage.removeItem(config.tokenKey);
-        localStorage.removeItem(config.userKey);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setUser(null);
     };
 

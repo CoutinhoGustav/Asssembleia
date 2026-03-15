@@ -6,6 +6,7 @@ import { Mail, Lock, ArrowRight, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Login = () => {
+    console.log('[Login] Rendering Login component...');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { login } = useAuth();
