@@ -157,18 +157,18 @@ const History = () => {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(12);
             doc.setTextColor(0);
-            doc.text('IGREJA BATISTA REGULAR DO CALVÁRIO', 20, 20);
+            doc.text('IGREJA BATISTA REGULAR DO CALVÁRIO', 14, 20);
 
             doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
-            doc.text('CNPJ 02.578.953/0001-67', 20, 25);
+            doc.text('CNPJ 02.578.953/0001-67', 14, 25);
             
             const headerTitle = type.id === 'official' 
                 ? 'CHAMADA DO ROL DE MEMBROS OFICIAIS' 
                 : 'CHAMADA DO ROL DE MEMBROS HONORÁRIOS';
-            doc.text(headerTitle, 20, 30);
+            doc.text(headerTitle, 14, 30);
             
-            doc.text(`${sessionNum}ª SESSÃO ORDINÁRIA REALIZADA NO DIA ${dateFormatted}`, 20, 35);
+            doc.text(`${sessionNum}ª SESSÃO ORDINÁRIA REALIZADA NO DIA ${dateFormatted}`, 14, 35);
 
             // --- TABELA ---
             const tableData = typeRecords.map((r, index) => [
