@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Request, Patch, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, Patch, Put, Delete, Query, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import * as bcrypt from 'bcryptjs';
 
@@ -22,7 +22,7 @@ export class AuthController {
                 }
             };
         }
-        return { message: 'Invalid credentials' };
+        throw new UnauthorizedException('Credenciais inválidas');
     }
 
     @Post('register')
@@ -59,7 +59,20 @@ export class AuthController {
     async updateProfile(@Body() userData: any) {
         const { id, ...updateData } = userData;
         const user: any = await this.adminService.findById(id);
-        if (user) {
+        
+        if (!user) {
+            throw new NotFoundException('Usuário não encontrado');
+        }
+
+        // Check if email is being changed and if it's already taken
+        if (updateData.email && updateData.email !== user.email) {
+            const existing = await this.adminService.findByEmail(updateData.email);
+            if (existing) {
+                throw new BadRequestException('Este e-mail já está sendo utilizado por outro administrador');
+            }
+        }
+
+        try {
             const updated: any = await this.adminService.update(id, updateData);
             return {
                 id: updated.id,
@@ -67,8 +80,9 @@ export class AuthController {
                 email: updated.email,
                 avatar: updated.avatar,
             };
+        } catch (error) {
+            throw new BadRequestException('Erro ao atualizar perfil');
         }
-        return { message: 'User not found' };
     }
 
     @Patch('profile')
@@ -82,12 +96,12 @@ export class AuthController {
         const user: any = await this.adminService.findByEmail(email);
 
         if (!user) {
-            return { message: 'Usuário não encontrado' };
+            throw new NotFoundException('Usuário não encontrado');
         }
 
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
-            return { message: 'Senha atual incorreta' };
+            throw new BadRequestException('Senha atual incorreta');
         }
 
         await this.adminService.update(user.id, { password: newPassword });

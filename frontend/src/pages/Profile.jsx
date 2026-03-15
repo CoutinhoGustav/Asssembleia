@@ -58,7 +58,7 @@ const Profile = () => {
             updateProfile(res.data);
             toast.success('Perfil atualizado!');
         } catch (err) {
-            toast.error('Erro ao atualizar perfil');
+            toast.error(err.response?.data?.message || 'Erro ao atualizar perfil');
         } finally {
             setLoading(false);
         }
