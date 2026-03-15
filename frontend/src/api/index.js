@@ -1,8 +1,18 @@
 import axios from 'axios';
-import { getBaseURL } from './discovery';
+
+const getDiscoveryURL = () => {
+    let url = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+    url = url.trim().replace(/\/$/, "");
+
+    // Auto-fix protocol para LocalTunnel no Vercel/HTTPS
+    if (window.location.protocol === 'https:' && url.includes('localtunnel.me') && url.startsWith('http:')) {
+        url = url.replace('http:', 'https:');
+    }
+    return url;
+};
 
 const api = axios.create({
-    baseURL: getBaseURL(),
+    baseURL: getDiscoveryURL(),
     headers: {
         'bypass-tunnel-reminder': 'true'
     }

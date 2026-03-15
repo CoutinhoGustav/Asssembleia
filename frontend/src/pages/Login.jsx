@@ -2,36 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-hot-toast';
-import { Mail, Lock, ArrowRight, Users, Settings, Save, RefreshCw, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { getBaseURL, saveBackendURL } from '../api/discovery';
-import { reconnectSocket } from '../lib/socket';
+import { Mail, Lock, ArrowRight, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [tempUrl, setTempUrl] = useState(getBaseURL());
     const { login } = useAuth();
     const navigate = useNavigate();
-
-    const handleSaveSettings = () => {
-        saveBackendURL(tempUrl);
-        // Aplica a mudança imediatamente no Axios e no Socket
-        import('../api/index').then(m => {
-            m.default.defaults.baseURL = tempUrl;
-        });
-        reconnectSocket(tempUrl);
-        toast.success('Configurações aplicadas!');
-        setIsSettingsOpen(false);
-    };
-
-    const handleResetSettings = () => {
-        localStorage.removeItem('VITE_API_URL');
-        const defaultUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
-        setTempUrl(defaultUrl);
-        toast.success('Restaurado para o padrão');
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -109,66 +87,7 @@ const Login = () => {
                         Cadastre-se
                     </Link>
                 </p>
-
-                {/* Settings Toggle */}
-                <button 
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="absolute top-6 right-6 p-3 text-[#f5f5dc]/20 hover:text-[#f5f5dc] hover:bg-white/5 rounded-full transition-all"
-                >
-                    <Settings size={20} />
-                </button>
             </motion.div>
-
-            {/* Settings Modal */}
-            <AnimatePresence>
-                {isSettingsOpen && (
-                    <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#3a0303] w-full max-w-sm rounded-[2.5rem] p-8 border border-[#5a0505] shadow-2xl"
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-black text-[#f5f5dc] tracking-tight">Conectividade</h3>
-                                <button onClick={() => setIsSettingsOpen(false)} className="text-[#f5f5dc]/20 hover:text-white"><X size={20}/></button>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-[10px] font-black text-[#f5f5dc]/40 uppercase tracking-widest mb-2">URL do Backend</label>
-                                    <input 
-                                        type="text"
-                                        className="w-full px-4 py-3 rounded-xl bg-[#4a0404] border border-[#6b0a0a] text-white text-sm outline-none focus:border-[#f5f5dc]/40"
-                                        value={tempUrl}
-                                        onChange={(e) => setTempUrl(e.target.value)}
-                                        placeholder="http://seu-backend.localtunnel.me"
-                                    />
-                                    <p className="mt-2 text-[10px] text-[#f5f5dc]/30 leading-relaxed font-medium">
-                                        Se o seu link do LocalTunnel mudar, cole o novo link aqui e o login voltará a funcionar instantaneamente.
-                                    </p>
-                                </div>
-
-                                <div className="flex gap-2 pt-2">
-                                    <button 
-                                        onClick={handleSaveSettings}
-                                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-900/20"
-                                    >
-                                        <Save size={16} /> SALVAR
-                                    </button>
-                                    <button 
-                                        onClick={handleResetSettings}
-                                        className="p-3 bg-[#4a0404] text-[#f5f5dc]/40 hover:text-[#f5f5dc] rounded-xl transition-all"
-                                        title="Restaurar padrão"
-                                    >
-                                        <RefreshCw size={18} />
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </div>
     );
 };

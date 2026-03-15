@@ -1,24 +1,23 @@
 import { io } from 'socket.io-client';
-import { getBaseURL } from '../api/discovery';
 
-const URL = getBaseURL();
+const getDiscoveryURL = () => {
+    let url = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+    url = url.trim().replace(/\/$/, "");
 
-export const socket = io(URL, {
+    // Auto-fix protocol para LocalTunnel no Vercel/HTTPS
+    if (window.location.protocol === 'https:' && url.includes('localtunnel.me') && url.startsWith('http:')) {
+        url = url.replace('http:', 'https:');
+    }
+    return url;
+};
+
+export const socket = io(getDiscoveryURL(), {
     extraHeaders: {
         'bypass-tunnel-reminder': 'true'
     },
-    // Garante que o socket tente reconectar se o servidor cair/voltar
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
+    transports: ['polling', 'websocket'], // Essencial para estabilidade no Vercel/Túneis
+    reconnectionAttempts: 10,
+    reconnectionDelay: 2000,
 });
-
-// Helper para re-inicializar caso o usuário mude o URL manualmente no assistente
-export const reconnectSocket = (newUrl) => {
-    if (socket.connected) {
-        socket.disconnect();
-    }
-    socket.io.uri = newUrl;
-    socket.connect();
-};
 
 export default socket;
