@@ -57,10 +57,10 @@ export class AuthController {
 
     @Put('profile')
     async updateProfile(@Body() userData: any) {
-        // Mocking update for the first user or by email
-        const user: any = await this.adminService.findByEmail(userData.email);
+        const { id, ...updateData } = userData;
+        const user: any = await this.adminService.findById(id);
         if (user) {
-            const updated: any = await this.adminService.update(user.id, userData);
+            const updated: any = await this.adminService.update(id, updateData);
             return {
                 id: updated.id,
                 name: updated.name,

@@ -27,15 +27,22 @@ export class AdminService {
     findByEmail(email: string) {
         return this.repository.findOne({
             where: { email },
-            select: ['id', 'name', 'email', 'password', 'avatar'] // Include password for login
+            select: ['id', 'name', 'email', 'password', 'avatar']
+        });
+    }
+
+    findById(id: string) {
+        return this.repository.findOne({
+            where: { id }
         });
     }
 
     async update(id: string, updateDto: any) {
-        if (updateDto.password) {
-            updateDto.password = await bcrypt.hash(updateDto.password, 10);
+        const { id: _, ...data } = updateDto;
+        if (data.password) {
+            data.password = await bcrypt.hash(data.password, 10);
         }
-        await this.repository.update(id, updateDto);
+        await this.repository.update(id, data);
         return this.repository.findOne({ where: { id } });
     }
 
