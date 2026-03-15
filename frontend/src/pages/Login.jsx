@@ -1,3 +1,7 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { toast } from 'react-hot-toast';
 import { Mail, Lock, ArrowRight, Users, Settings, Save, RefreshCw, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getBaseURL, saveBackendURL } from '../api/discovery';
