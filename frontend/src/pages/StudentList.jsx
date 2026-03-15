@@ -22,7 +22,14 @@ const StudentList = () => {
     const fetchStudents = async () => {
         try {
             const res = await api.get('/assembly/students');
-            setStudents(res.data);
+            // Sort and remove duplicates from students list
+            const sortedStudents = (res.data || [])
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .filter((student, index, self) =>
+                    index === self.findIndex((s) => s.name.toLowerCase() === student.name.toLowerCase())
+                );
+
+            setStudents(sortedStudents);
             setLoading(false);
         } catch (err) {
             toast.error('Erro ao carregar membros');

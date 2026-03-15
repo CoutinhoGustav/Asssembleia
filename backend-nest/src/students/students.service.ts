@@ -10,13 +10,26 @@ export class StudentsService {
         private readonly repository: Repository<Student>,
     ) { }
 
-    create(createDto: any) {
+    async create(createDto: any) {
+        // Check for existing student with same name (case-insensitive)
+        const existing = await this.repository.findOne({
+            where: { name: createDto.name }
+        });
+
+        if (existing) {
+            throw new Error('Membro já cadastrado com este nome');
+        }
+
         const student = this.repository.create(createDto);
         return this.repository.save(student);
     }
 
     findAll() {
-        return this.repository.find();
+        return this.repository.find({
+            order: {
+                name: 'ASC'
+            }
+        });
     }
 
     findOne(id: string) {
