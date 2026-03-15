@@ -15,4 +15,14 @@ export const socket = io(url, {
     reconnectionDelay: 2000,
 });
 
+// Listener de debug para ajudar a identificar falhas de conexão no celular
+socket.on('connect_error', (err) => {
+    console.error('[Socket] Erro de conexão:', err.message);
+    console.log('[Socket] Tentando conectar em:', url);
+});
+
+socket.on('connect', () => {
+    console.log('[Socket] Conectado com sucesso em:', url);
+});
+
 export default socket;

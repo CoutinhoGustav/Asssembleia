@@ -2,19 +2,29 @@ import axios from 'axios';
 
 export const getDiscoveryURL = () => {
     console.log('[Discovery] Iniciando descoberta de URL...');
-    // Busca a URL da variável de ambiente definida no Vercel/Build
+    
+    // 1. Pega a URL base (Vercel env ou localhost padrão)
     let url = import.meta.env.VITE_API_URL || 'http://localhost:3002';
     url = url.trim().replace(/\/$/, "");
 
-    console.log('[Discovery] URL base inicial:', url);
+    const currentHost = window.location.hostname;
+    const isLocalIP = /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|127\.)/.test(currentHost) || currentHost.includes('.local');
 
-    // Se estivermos em HTTPS (Vercel) e o backend for LocalTunnel, forçamos HTTPS
+    // 2. Se estivermos acessando por um IP local (WiFi) e a URL padrão for localhost, 
+    // trocamos localhost pelo IP real do computador na rede.
+    // Isso permite que o celular ache o computador sem configuração manual.
+    if (isLocalIP && url.includes('localhost')) {
+        console.log(`[Discovery] Detectado acesso por IP local (${currentHost}). Ajustando backend...`);
+        url = url.replace('localhost', currentHost);
+    }
+
+    // 3. Se estivermos em HTTPS (Vercel) e o backend for LocalTunnel, forçamos HTTPS
     if (window.location.protocol === 'https:' && url.includes('localtunnel.me')) {
         url = url.replace('http://', 'https://');
-        console.log('[Discovery] Protocolo forçado para HTTPS');
+        console.log('[Discovery] Protocolo tunnel forçado para HTTPS para evitar Mixed Content');
     }
     
-    console.log('[Discovery] URL Final:', url);
+    console.log('[Discovery] URL Final do Backend:', url);
     return url;
 };
 
@@ -25,7 +35,7 @@ const api = axios.create({
     }
 });
 
-console.log('API Base URL:', api.defaults.baseURL);
+console.log('API Base URL configurada:', api.defaults.baseURL);
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
@@ -33,6 +43,7 @@ api.interceptors.request.use((config) => {
         config.headers['x-auth-token'] = token;
     }
 
+    // Bypass robusto para LocalTunnel (Headers + Query Param)
     if (config.url && (config.url.includes('localtunnel.me') || api.defaults.baseURL.includes('localtunnel.me'))) {
         config.params = { ...config.params, 'bypass-tunnel-reminder': 'true' };
     }
@@ -44,7 +55,7 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (!error.response && error.code !== 'ECONNABORTED') {
-            console.error('Possível bloqueio de Túnel ou Servidor offline');
+            console.error('[API] Erro de rede: Possível bloqueio de Túnel, Servidor offline ou IP inacessível.');
         }
 
         console.error('API Error:', {
