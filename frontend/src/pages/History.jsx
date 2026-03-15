@@ -162,7 +162,12 @@ const History = () => {
             doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
             doc.text('CNPJ 02.578.953/0001-67', 20, 25);
-            doc.text('CHAMADA DO ROL DE MEMBROS', 20, 30);
+            
+            const headerTitle = type.id === 'official' 
+                ? 'CHAMADA DO ROL DE MEMBROS OFICIAIS' 
+                : 'CHAMADA DO ROL DE MEMBROS HONORÁRIOS';
+            doc.text(headerTitle, 20, 30);
+            
             doc.text(`${sessionNum}ª SESSÃO ORDINÁRIA REALIZADA NO DIA ${dateFormatted}`, 20, 35);
 
             // --- TABELA ---
