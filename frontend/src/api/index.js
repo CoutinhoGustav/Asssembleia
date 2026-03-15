@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export export const getDiscoveryURL = () => {
+export const getDiscoveryURL = () => {
     // Busca a URL da variável de ambiente definida no Vercel/Build
     let url = import.meta.env.VITE_API_URL || 'http://localhost:3002';
     url = url.trim().replace(/\/$/, "");
