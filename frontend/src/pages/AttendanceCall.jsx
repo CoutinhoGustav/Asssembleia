@@ -3,15 +3,9 @@ import api from '../api';
 import { Check, X, Send, Search, AlertTriangle, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import io from 'socket.io-client';
+import { socket } from '../lib/socket';
 import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
-
-const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3002', {
-    extraHeaders: {
-        'bypass-tunnel-reminder': 'true'
-    }
-});
 
 const AttendanceCall = () => {
     const { user } = useAuth();

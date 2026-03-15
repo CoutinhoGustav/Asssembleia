@@ -1,12 +1,13 @@
 import axios from 'axios';
-import { config } from '../config';
+import { getBaseURL } from './discovery';
 
 const api = axios.create({
-    baseURL: config.apiUrl,
+    baseURL: getBaseURL(),
     headers: {
         'bypass-tunnel-reminder': 'true'
     }
 });
+
 console.log('API Base URL:', api.defaults.baseURL);
 
 api.interceptors.request.use((config) => {
