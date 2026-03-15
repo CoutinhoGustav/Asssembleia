@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import api from '../api';
 import { config } from '../config';
 
 export const AuthContext = createContext();
@@ -28,54 +29,42 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const res = await fetch(`${config.apiUrl}/auth/login`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'bypass-tunnel-reminder': 'true'
-            },
-            body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
+        try {
+            const res = await api.post('/auth/login', { email, password });
+            const data = res.data;
 
-        if (!res.ok) {
-            throw { response: { data } };
-        }
-
-        if (data.token && (data.admin || data.user)) {
-            const userData = data.admin || data.user;
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(userData));
-            setUser(userData);
-            return data;
-        } else {
-            throw { response: { data: { message: 'Dados de usuário ausentes' } } };
+            if (data.token && (data.admin || data.user)) {
+                const userData = data.admin || data.user;
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(userData));
+                setUser(userData);
+                return data;
+            } else {
+                throw { response: { data: { message: 'Dados de usuário ausentes' } } };
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            throw err;
         }
     };
 
     const register = async (name, email, password) => {
-        const res = await fetch(`${config.apiUrl}/auth/register`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'bypass-tunnel-reminder': 'true'
-            },
-            body: JSON.stringify({ name, email, password })
-        });
-        const data = await res.json();
+        try {
+            const res = await api.post('/auth/register', { name, email, password });
+            const data = res.data;
 
-        if (!res.ok) {
-            throw { response: { data } };
-        }
-
-        if (data.token && (data.admin || data.user)) {
-            const userData = data.admin || data.user;
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(userData));
-            setUser(userData);
-            return data;
-        } else {
-            throw { response: { data: { message: 'Erro ao registrar usuário' } } };
+            if (data.token && (data.admin || data.user)) {
+                const userData = data.admin || data.user;
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(userData));
+                setUser(userData);
+                return data;
+            } else {
+                throw { response: { data: { message: 'Erro ao registrar usuário' } } };
+            }
+        } catch (err) {
+            console.error('Register error:', err);
+            throw err;
         }
     };
 

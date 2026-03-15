@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const getDiscoveryURL = () => {
+export const getDiscoveryURL = () => {
     let url = import.meta.env.VITE_API_URL || 'http://localhost:3002';
     url = url.trim().replace(/\/$/, "");
 
@@ -14,7 +14,7 @@ const getDiscoveryURL = () => {
 const api = axios.create({
     baseURL: getDiscoveryURL(),
     headers: {
-        'bypass-tunnel-reminder': 'true'
+        'Bypass-Tunnel-Reminder': 'true'
     }
 });
 
