@@ -6,10 +6,11 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": "14.x"
+    "node": "18.x"
   },
   "scripts": {
     "build": "nest build",
+    "vercel-build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

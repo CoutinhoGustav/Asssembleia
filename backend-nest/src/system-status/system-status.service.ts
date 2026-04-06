@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SystemStatus } from './entities/system-status.entity';
@@ -10,7 +10,7 @@ export class SystemStatusService {
     constructor(
         @InjectRepository(SystemStatus)
         private readonly repo: Repository<SystemStatus>,
-        private readonly eventsGateway: EventsGateway,
+        @Optional() private readonly eventsGateway?: EventsGateway,
     ) { }
 
     async getStatus() {
@@ -25,7 +25,10 @@ export class SystemStatusService {
         const status = await this.getStatus();
         status.isCallActive = active;
         const savedStatus = await this.repo.save(status);
-        this.eventsGateway.emitSystemStatusChange(active);
+        // Emitir evento WebSocket apenas quando o gateway está disponível (não na Vercel)
+        if (this.eventsGateway) {
+            this.eventsGateway.emitSystemStatusChange(active);
+        }
         return savedStatus;
     }
 }

@@ -9,6 +9,12 @@ import { SystemStatusModule } from './system-status/system-status.module';
 import { AssemblyModule } from './assembly/assembly.module';
 import { EventsModule } from './events/events.module';
 
+// Na Vercel (serverless), WebSocket não funciona.
+// Importamos o EventsModule apenas quando NÃO estamos na Vercel.
+const isVercel = process.env.VERCEL === '1';
+
+const optionalModules = isVercel ? [] : [EventsModule];
+
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -36,7 +42,7 @@ import { EventsModule } from './events/events.module';
         AdminModule,
         SystemStatusModule,
         AssemblyModule,
-        EventsModule,
+        ...optionalModules,
     ],
 })
 export class AppModule { }

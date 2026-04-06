@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  # ─── Banco de Dados PostgreSQL ───────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: ibrc-postgres
+    environment:
+      POSTGRES_DB: IBRC_Assembleia
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend-nest/IBRC-DB.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d IBRC_Assembleia"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── Backend NestJS ──────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend-nest
+      dockerfile: Dockerfile
+    container_name: ibrc-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/IBRC_Assembleia
+      PORT: "3002"
+      NODE_ENV: development
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ─── Frontend React (Vite Dev Server) ────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ibrc-frontend
+    environment:
+      VITE_API_URL: http://localhost:3002
+      VITE_USE_MOCK: "false"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local

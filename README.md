@@ -60,6 +60,48 @@ npm install
 npm run dev
 ```
 
+### 4️⃣ 🐋 Rodando com Docker (Recomendado para Dev)
+Para rodar rapidamente **toda a aplicação com Banco de Dados**, basta usar o Docker:
+
+```bash
+# Na raiz do projeto, execute:
+docker compose up --build
+
+# O sistema inteiro estará disponível:
+# - Frontend: http://localhost:5173
+# - Backend: http://localhost:3002
+# - Banco de Dados: Porta 5432
+```
+
+---
+
+## 🚀 Como fazer o Deploy na Vercel
+
+O projeto está totalmente configurado para rodar os dois lados integrados na plataforma Serverless da Vercel!
+*(Nota: O WebSockets desativa-se de forma inteligente na nuvem pois a Vercel não suporta essas conexões estáveis, sem quebrar o projeto).*
+
+### 1. Preparação (Banco de Dados em Nuvem)
+O Vercel não suporta hospedar o seu PostgreSQL local. Você precisará criar um num cloud:
+- Crie um Database gratuito na **Neon** (neon.tech) ou **Supabase**.
+- Em seu painel SQL deles, execute o script do seu `IBRC-DB.sql` localizado na pasta `backend-nest` para construir as tabelas.
+- Copie a URL de conexão do PostgreSQL informada por eles.
+
+### 2. Subindo o Backend-Nest
+1. No Dashboard da Vercel, clique em **Add New Project**.
+2. Selecione o repositório deste projeto em seu GitHub.
+3. Importante: Em **"Root Directory"**, clique em *Edit* e selecione `backend-nest`.
+4. Em **Environment Variables**, adicione `DATABASE_URL` contendo a URL de conexão do passo 1.
+5. Clique em **Deploy**. Quando terminar, copie a URL gerada (algo como `https://ibrc-backend.vercel.app`).
+
+### 3. Subindo o Frontend
+1. Vá novamente ao Dashboard da Vercel e adicione outro **New Project**, apontando para o mesmo repositório da sua conta Github.
+2. Desta vez, altere o **"Root Directory"** selecionando a pasta `frontend`.
+3. Na seção **Environment Variables**, adicione uma nova:
+   - Key: `VITE_API_URL`
+   - Value: `(a URL que foi gerada para o seu backend no final da etapa anterior)`
+4. Clique em **Deploy**!
+5. Pronto, o aplicativo final está ao vivo ligado remotamente.
+
 ---
 
 ## 📁 Estrutura do Projeto
